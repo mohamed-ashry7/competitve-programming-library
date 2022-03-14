@@ -1,3 +1,5 @@
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,36 +8,6 @@ import java.util.StringTokenizer;
 
 public class p10360_Rat_Attack {
 
-	static int[][] Rats;
-	static int maxX, minX;
-	static int maxY, minY;
-	static int [][]window ; 
-	static int d ; 
-	static int howRats(int startX, int startY, int endX, int endY) {
-
-		int rats = 0 ; 
-		if (startX + startY == 0 ) { 
-			for (int i = 0 ; i < endX ; i ++ ) { 
-				for (int j = 0 ; j < endY ; j ++ ) { 
-					rats += Rats[i][j] ; 
-				}
-			}
-		}
-		else if (startY == 0 ) { 
-			rats = window[startX-1][startY] ; 
-			for (int i = 0 ; i < endY ; i ++   ) { 
-				rats = rats + Rats[endX-1][i] - Rats[startX-1][i] ; 
-			}
-		}
-		else  { 
-			rats = window [startX][startY-1]  ;
-			for (int i = startX ; i<endX ; i ++ ) { 
-				rats = rats +Rats[i][endY-1] - Rats[i][startY-1] ; 
-			}
-		}
-		return rats ; 
-	}
-
 	public static void main(String[] args) throws NumberFormatException, IOException {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -43,69 +15,72 @@ public class p10360_Rat_Attack {
 		int tests = Integer.parseInt(br.readLine());
 
 		while (tests-- > 0) {
-			d = Integer.parseInt(br.readLine())+1;
+			int d = Integer.parseInt(br.readLine());
 			int n = Integer.parseInt(br.readLine());
-			Rats = new int[1025][1025];
-			Triple [] coor = new Triple [n] ; 
-			for (int i = 0; i < n; i++) {
+			int[][] map = new int[1025][1025];
+			while (n-- > 0) {
 				StringTokenizer stt = new StringTokenizer(br.readLine());
 				int x = Integer.parseInt(stt.nextToken());
 				int y = Integer.parseInt(stt.nextToken());
-				int size = Integer.parseInt(stt.nextToken()) ; 
-				Rats[x][y] = size ;
-				coor[i] = new Triple (x,y , size ) ; 
+				int size = Integer.parseInt(stt.nextToken());
+				map[x][y] = size;
 			}
-	
+			for (int i = 0; i < 1025; i++) {
+				for (int j = 0; j < 1025; j++) {
+					if (i != 0 && j != 0) {
+						map[i][j] += map[i - 1][j] + map[i][j - 1] - map[i - 1][j - 1];
+					} else if (i != 0) {
+						map[i][j] += map[i - 1][j];
 
-			int max = 0;
-			int corX = 0;
-			int corY = 0;
-			window = new int [1025-d+1][1025-d+1] ; 
-			for (int i = 0 ; i <1025-d + 1  ; i ++ ) { 
-				int startX = i  ;
-				int endX = i+d ;
-				for (int j = 0 ; j < 1025-d+ 1 ; j ++ ) { 
-					int startY = j ; 
-					int endY = j+d ; 
-					int gimme = howRats(startX, startY, endX, endY) ; 
-					window[i][j] = gimme ; 
-					if (gimme>max) { 
-						max = gimme ; 
-						corX = i ; 
-						corY = j ; 
+					} else if (j != 0) {
+						map[i][j] += map[i][j - 1];
+
 					}
 				}
 			}
-			pw.println(corX + " " + corY + " " + max);
-			pw.flush();
-		}
+			int max = -1;
+			int x = 0;
+			int y = 0;
+			
+			
+			
+			
+			for (int i = 0; i < 1025; i++) {
+				for (int j = 0; j < 1025; j++) {
+					int count = map[i][j];
+					
+					
+					if (i > 2 * d && j > 2 * d) {
+						count =count -  map[i - 2 * d - 1][j] 
+								- map[i][j - 2 * d - 1] 
+								+ map[i - 2 * d - 1][j - 2 * d - 1];
+						
 
+					} else if (i > 2 * d) {
+						count -= map[i - 2 * d - 1][j];
+					} else if (j > 2 * d) {
+						count -= map[i][j - 2 * d - 1];
+					}
+					
+					if (count > max) {
+						max = count;
+						x = i - d<0?0:i-d;
+						y = j - d<0?0:j-d;
+						if (max == map[1024][1024]) {
+							break;
+						}
+					}
+
+				}
+			}
+
+			pw.println(x + " " + y + " " + max);
+		}
+		pw.flush();
 		pw.close();
 		br.close();
 
 	}
 
-	static class Triple {
-		int x;
-		int y;
-		int size;
-
-		public Triple(int x, int y, int size) {
-			this.x = x;
-			this.y = y;
-			this.size = size;
-		}
-
-		int getX() {
-			return x;
-		}
-
-		int getY() {
-			return y;
-		}
-
-		int getSize() {
-			return size;
-		}
-	}
 }
+
